@@ -28,9 +28,9 @@ void check_port (int port_number)
 
 	if (connect(sockfd, (struct sockaddr*)&addr, sizeof(addr)) < 0)
 	{
-		printf("connection refused\n");
+		printf("PORT %d | connection refused\n", port_number);
 	} else {
-		printf("connection accepted\n");
+		printf("PORT %d | connection accepted\n", port_number);
 	};
 	close(sockfd);
 }
