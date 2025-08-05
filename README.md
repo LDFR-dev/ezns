@@ -42,10 +42,5 @@ The program is built around a few key components:
     sudo ./ezns
     ```
 
-## ⚠️ Disclaimer
 
-This program is intended for educational purposes only. Playing with raw sockets can have unintended consequences on your network. Please use it responsibly.
-
----
-
-Made with ❤️ by [Your Name]
+Made with ❤️ by LDFR
