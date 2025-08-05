@@ -43,16 +43,10 @@ The program operates by attempting to establish a full TCP connection with each 
     ./bin/ezns 127.0.0.1 -p 1-1024
     ```
 
--   Scan only port 80 on a remote host:
-    ```bash
-    ./bin/ezns scanme.nmap.org -p 80
-    ```
-
 -   Scan all ports on a specific IP:
     ```bash
     ./bin/ezns <your_ip> -p all
     ```
-
-<img src="https://raw.githubusercontent.com/maurodesouza/maurodesouza/output/snake.svg" alt="Snake animation" />
+    
 
 Made with ❤️ by LDFR
