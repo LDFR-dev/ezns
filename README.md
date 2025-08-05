@@ -33,7 +33,7 @@ The program operates by attempting to establish a full TCP connection with each 
 2.  **Run the executable:**
     You don't necessarily need root privileges, but it's good practice for network scanning tools.
     ```bash
-    ./bin/ezns <target_ip> -p <port_range>
+    ./bin/ezns <target_ipv4 / hostname> -p <port_range>
     ```
 
 ### Usage Examples
@@ -41,11 +41,12 @@ The program operates by attempting to establish a full TCP connection with each 
 -   Scan ports 1 through 1024 on localhost:
     ```bash
     ./bin/ezns 127.0.0.1 -p 1-1024
+    ./bin/ezns localhost -p 1-1024
     ```
 
 -   Scan all ports on a specific IP:
     ```bash
-    ./bin/ezns <your_ip> -p all
+    ./bin/ezns <your_ip / your_hostname> -p all
     ```
     
 
