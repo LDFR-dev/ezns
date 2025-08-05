@@ -23,6 +23,37 @@ The program operates by attempting to establish a full TCP connection with each 
     -   If `connect()` fails with `ETIMEDOUT`, the port is marked as **Filtered** (meaning a firewall or other network device is likely blocking the connection).
 4.  **Resource Management:** The socket is closed after each connection attempt to free up resources.
 
+## 📦 Requirements
+
+To compile and run EZNS, you'll need the following dependencies:
+
+-   **GCC (GNU Compiler Collection):** The standard C compiler.
+-   **Make:** The build automation tool.
+
+### Installation Instructions
+
+Here's how to install these dependencies on various Linux distributions:
+
+#### Debian/Ubuntu
+```bash
+sudo apt update
+sudo apt install build-essential
+```
+
+#### Fedora/CentOS/RHEL
+```bash
+sudo dnf groupinstall "Development Tools"
+```
+or
+```bash
+sudo yum groupinstall "Development Tools"
+```
+
+#### Arch Linux
+```bash
+sudo pacman -S base-devel
+```
+
 ## 🛠️ How to Compile and Run
 
 1.  **Compile the program:**
