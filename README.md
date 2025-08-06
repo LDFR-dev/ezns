@@ -69,9 +69,14 @@ sudo pacman -S base-devel
 
 ### Usage Examples
 
--   Scan ports 1 through 1024 on localhost:
+-   Scan a specific port on a specific IP:
     ```bash
-    ./bin/ezns 127.0.0.1 -p 1-1024
+    ./bin/ezns <your_ip / your_hostname> -p 80
+    ```
+
+-   Scan a range of port on localhost or on a specific IP:
+    ```bash
+    ./bin/ezns <your_ip / your_hostname> -p 1-1024
     ./bin/ezns localhost -p 1-1024
     ```
 
