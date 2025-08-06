@@ -1,4 +1,4 @@
-# EZNS - TCP Port Scanner 🚀
+# ezns - TCP Port Scanner 🚀
 
 Welcome to **EZNS**! This is a simple and efficient TCP port scanner written in C. It's a great tool for network exploration and security auditing. 🧙‍♂️
 
