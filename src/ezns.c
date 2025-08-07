@@ -76,6 +76,7 @@ void parse_ports(char *port_str, int *start_port, int *end_port) {
   }
 }
 
+
 void tcp_connect_scan(const char *target_ip, int start_port, int end_port) {
   print_scan_header(target_ip, start_port, end_port);
 
@@ -120,9 +121,69 @@ void tcp_connect_scan(const char *target_ip, int start_port, int end_port) {
   print_scan_footer();
 }
 
+int is_host_reachable(const char *target_ip) {
+    int sockfd;
+    struct sockaddr_in addr;
+    int reachable = 0;
+
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (sockfd < 0) {
+        return 0;
+    }
+
+    struct timeval timeout;
+    timeout.tv_sec = 1;
+    timeout.tv_usec = 0;
+    setsockopt(sockfd, SOL_SOCKET, SO_SNDTIMEO, (char *)&timeout, sizeof(timeout));
+    setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, (char *)&timeout, sizeof(timeout));
+
+    addr.sin_family = AF_INET;
+    addr.sin_port = htons(80); // Check on port 80
+    if (inet_pton(AF_INET, target_ip, &addr.sin_addr) <= 0) {
+        close(sockfd);
+        return 0;
+    }
+
+    if (connect(sockfd, (struct sockaddr *)&addr, sizeof(addr)) >= 0) {
+        reachable = 1;
+    }
+
+    close(sockfd);
+    return reachable;
+}
+
 int is_valid_ipv4(const char *ip) {
   struct sockaddr_in sa;
+  if (strchr(ip, '-')) {
+    char ip_copy[ADDR_STR_LEN];
+    strncpy(ip_copy, ip, ADDR_STR_LEN);
+    char *dash = strchr(ip_copy, '-');
+    *dash = '\0';
+    return inet_pton(AF_INET, ip_copy, &(sa.sin_addr)) == 1;
+  }
   return inet_pton(AF_INET, ip, &(sa.sin_addr)) == 1;
+}
+
+void parse_ip_range(char *ip_range_str, char *start_ip, char *end_ip) {
+  char *dash = strchr(ip_range_str, '-');
+  if (dash) {
+    // Copy the start IP part
+    strncpy(start_ip, ip_range_str, dash - ip_range_str);
+    start_ip[dash - ip_range_str] = '\0';
+
+    // Construct the end IP
+    char *last_dot = strrchr(start_ip, '.');
+    if (last_dot) {
+        strncpy(end_ip, start_ip, last_dot - start_ip + 1);
+        end_ip[last_dot - start_ip + 1] = '\0';
+        strcat(end_ip, dash + 1);
+    } else {
+        strcpy(end_ip, dash + 1);
+    }
+  } else {
+    strcpy(start_ip, ip_range_str);
+    strcpy(end_ip, ip_range_str);
+  }
 }
 
 int main(int argc, char *argv[]) {
@@ -133,7 +194,6 @@ int main(int argc, char *argv[]) {
   }
 
   char *target = NULL;
-  char *target_ip = malloc(ADDR_STR_LEN);
   char *port_range_str = NULL;
   int start_port = 1, end_port = 1024; // Default range
   int opt;
@@ -151,17 +211,8 @@ int main(int argc, char *argv[]) {
 
   if (optind < argc) {
     target = argv[optind];
-    if (is_valid_ipv4(target)) {
-      target_ip = target;
-    } else {
-      if (get_ip(target_ip, target) < 0) {
-        perror("failed getting ipv4 address");
-        free(target_ip);
-        return 1;
-      }
-    }
   } else {
-    fprintf(stderr, "Target IP address is missing.\n");
+    fprintf(stderr, "Target IP address or range is missing.\n");
     print_usage(argv[0]);
     return 1;
   }
@@ -171,7 +222,50 @@ int main(int argc, char *argv[]) {
   }
 
   print_logo();
-  tcp_connect_scan(target_ip, start_port, end_port);
+
+  char start_ip_str[ADDR_STR_LEN];
+  char end_ip_str[ADDR_STR_LEN];
+  int is_range = (strchr(target, '-') != NULL);
+
+  if (is_valid_ipv4(target)) {
+    parse_ip_range(target, start_ip_str, end_ip_str);
+
+    struct in_addr start_ip_addr, end_ip_addr;
+    inet_pton(AF_INET, start_ip_str, &start_ip_addr);
+    inet_pton(AF_INET, end_ip_str, &end_ip_addr);
+
+    uint32_t start_ip = ntohl(start_ip_addr.s_addr);
+    uint32_t end_ip = ntohl(end_ip_addr.s_addr);
+
+    for (uint32_t current_ip = start_ip; current_ip <= end_ip; current_ip++) {
+      struct in_addr current_ip_addr;
+      current_ip_addr.s_addr = htonl(current_ip);
+      char current_ip_str[INET_ADDRSTRLEN];
+      inet_ntop(AF_INET, &current_ip_addr, current_ip_str, INET_ADDRSTRLEN);
+
+      if (!is_host_reachable(current_ip_str)) {
+          fprintf(stderr, "Host %s is unreachable.\n", current_ip_str);
+          if(is_range){
+              continue;
+          } else {
+              return 1;
+          }
+      }
+      tcp_connect_scan(current_ip_str, start_port, end_port);
+    }
+  } else {
+    char target_ip[ADDR_STR_LEN];
+    if (get_ip(target_ip, target) < 0) {
+      perror("failed getting ipv4 address");
+      return 1;
+    }
+    if (!is_host_reachable(target_ip)) {
+        fprintf(stderr, "Host %s is unreachable.\n", target_ip);
+        return 1;
+    }
+    tcp_connect_scan(target_ip, start_port, end_port);
+  }
 
   return 0;
 }
+

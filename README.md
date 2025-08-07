@@ -8,6 +8,7 @@ Welcome to **EZNS**! This is a simple and efficient TCP port scanner written in 
 
 -   **TCP Connect Scan:** Performs a standard TCP connect scan to identify open ports.
 -   **Custom Port Ranges:** Specify a single port, a range of ports (e.g., 1-1024), or scan all ports (1-65535).
+-   **Host Reachability Check:** Before scanning, the tool checks if the target host is reachable. If a single host is specified and it's unreachable, the program will notify the user and exit. If a range of IPs is provided, it will notify the user about the unreachable host and continue to the next one.
 -   **Status Identification:**  Clearly identifies ports as "Open", "Closed", or "Filtered".
 -   **User-Friendly Output:** Color-coded output for easy identification of port statuses.
 
@@ -83,6 +84,11 @@ sudo pacman -S base-devel
 -   Scan all ports on a specific IP:
     ```bash
     ./bin/ezns <your_ip / your_hostname> -p all
+    ```
+
+-   Scan a range of IP addresses:
+    ```bash
+    ./bin/ezns 192.168.1.1-10 -p 80
     ```
     
 
