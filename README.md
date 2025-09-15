@@ -92,4 +92,4 @@ sudo pacman -S base-devel
     ```
     
 
-Made with ❤️ by LDFR
+Made with ❤️ by LDFR-dev
